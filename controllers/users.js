@@ -1,5 +1,5 @@
 const User = require("../models/user");
-const {NOT_FOUND, INTERNAL_SERVER_ERROR} = require("../utils/errors");
+const {NOT_FOUND, INTERNAL_SERVER_ERROR, BAD_REQUEST} = require("../utils/errors");
 
 module.exports.getUsers = (req, res) => {
   User.find({})
@@ -23,7 +23,9 @@ module.exports.getUserById = (req, res) => {
 module.exports.createUser = (req, res) => {
   const {name, about, avatar} = req.body;
   User.create({name, about, avatar})
-    .then((user) => res.send({data: user}))
+    .then((user) => {
+        res.send({data: user})
+    })
     .catch(() => res.status(INTERNAL_SERVER_ERROR).send({message: "Произошла ошибка на сервере"}))
 }
 
