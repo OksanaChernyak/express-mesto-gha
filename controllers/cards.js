@@ -9,8 +9,8 @@ module.exports.getCards = (req, res) => {
 
 module.exports.deleteCardById = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
-    .then((cardId) => {
-      if (!cardId) {
+    .then((card) => {
+      if (!card) {
         res.status(BAD_REQUEST).send({ message: 'Карточка с таким идентификатором не найдена' });
       }
       res.send({ card });
@@ -31,8 +31,8 @@ module.exports.addLike = (req, res) => {
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
-    .then((cardId) => {
-      if (!cardId) {
+    .then((card) => {
+      if (!card) {
         res.status(BAD_REQUEST).send({ message: 'Карточка с таким идентификатором не найдена' });
       }
       res.send({ likes: card.likes });
@@ -46,8 +46,8 @@ module.exports.deleteLike = (req, res) => {
     { $pull: { likes: req.user._id } },
     { new: true },
   )
-    .then((cardId) => {
-      if (!cardId) {
+    .then((card) => {
+      if (!card) {
         res.status(BAD_REQUEST).send({ message: 'Карточка с таким идентификатором не найдена' });
       }
       res.send({ likes: card.likes });
