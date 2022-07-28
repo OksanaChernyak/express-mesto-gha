@@ -45,10 +45,14 @@ module.exports.updateProfile = (req, res) => {
     .then((user) => {
       if (!user) {
         res.status(NOT_FOUND).send({ message: 'Пользователь с таким идентификатором не найден' });
-      } else { res.send({ data: user }); }
+      } else {
+        res.send({ data: user });
+      }
     })
     .catch((error) => {
-      if (error.name === 'ValidationError' || error.name === 'CastError') {
+      if (error.name === 'ValidationError') {
+        res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные при редактировании профиля пользователя' });
+      } else if (error.name === 'CastError') {
         res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные при редактировании профиля пользователя' });
       } else {
         res.status(INTERNAL_SERVER_ERROR).send({ message: 'Произошла ошибка на сервере' });
@@ -62,11 +66,15 @@ module.exports.updateAvatar = (req, res) => {
     .then((user) => {
       if (!user) {
         res.status(NOT_FOUND).send({ message: 'Пользователь с таким идентификатором не найден' });
-      } else { res.send({ data: user }); }
+      } else {
+        res.send({ data: user });
+      }
     })
     .catch((error) => {
-      if (error.name === 'ValidationError' || error.name === 'CastError') {
+      if (error.name === 'ValidationError') {
         res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные при редактировании аватара' });
+      } else if (error.name === 'CastError') {
+        res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные при редактировании профиля пользователя' });
       } else {
         res.status(INTERNAL_SERVER_ERROR).send({ message: 'Произошла ошибка на сервере' });
       }
