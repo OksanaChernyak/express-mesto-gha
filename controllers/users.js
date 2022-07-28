@@ -1,5 +1,5 @@
 const User = require('../models/user');
-const { NOT_FOUND, INTERNAL_SERVER_ERROR, BAD_REQUEST } = require('../utils/errors');
+const { BAD_REQUEST, NOT_FOUND, INTERNAL_SERVER_ERROR } = require('../utils/errors');
 
 module.exports.getUsers = (req, res) => {
   User.find({})
@@ -41,6 +41,7 @@ module.exports.createUser = (req, res) => {
 
 module.exports.updateProfile = (req, res) => {
   const { name, about } = req.body;
+  // Объект опций для того, чтобы валидировать поля, и чтобы обновить запись в обработчике then
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
     .then((user) => {
       if (!user) {
@@ -48,7 +49,6 @@ module.exports.updateProfile = (req, res) => {
       } else { res.send({ user }); }
     })
     .catch((error) => {
-      console.log(error.name);
       if (error.name === 'ValidationError') {
         res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные при редактировании профиля пользователя' });
       } else {
