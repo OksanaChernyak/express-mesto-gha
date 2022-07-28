@@ -16,8 +16,6 @@ module.exports.getUserById = (req, res) => {
       // console.log(error.name);
       if (error.name === 'CastError') {
         res.status(BAD_REQUEST).send({ message: 'Некорректный id' });
-      } else if (error.name === 'ValidationError') {
-        res.status(NOT_FOUND).send({ message: 'Пользователь с таким идентификатором не найден' });
       } else {
         res.status(INTERNAL_SERVER_ERROR).send({ message: 'Произошла ошибка на сервере' });
       }
@@ -27,7 +25,7 @@ module.exports.getUserById = (req, res) => {
 module.exports.createUser = (req, res) => {
   const { name, about, avatar } = req.body;
   User.create({ name, about, avatar })
-    .then((user) => res.send({ data: user }))
+    .then((newUser) => res.send({ data: newUser }))
     .catch((error) => {
       if (error.name === 'ValidationError') {
         res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные при создании пользователя' });
