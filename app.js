@@ -8,7 +8,9 @@ const cardRoute = require('./routes/cards');
 const { PORT = 3000 } = process.env;
 const app = express();
 const PUBLIC_FOLDER = path.join(__dirname, 'public');
-mongoose.connect('mongodb://localhost:27017/mestodb');
+mongoose.connect('mongodb://localhost:27017/mestodb', {
+  useNewUrlParser: true,
+});
 // для приема веб-страниц внутри POST-запроса
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
