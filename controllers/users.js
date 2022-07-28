@@ -10,12 +10,18 @@ module.exports.getUsers = (req, res) => {
 module.exports.getUserById = (req, res) => {
   User.findById(req.params.userId)
     .then((user) => {
-      if (!user) {
-        res.status(NOT_FOUND).send({ message: 'Пользователь с таким идентификатором не найден' });
-      }
       res.send({ data: user });
     })
-    .catch(() => res.status(INTERNAL_SERVER_ERROR).send({ message: 'Произошла ошибка на сервере' }));
+    .catch((error) => {
+      // console.log(error.name);
+      if (error.name === 'CastError') {
+        res.status(BAD_REQUEST).send({ message: 'Некорректный id' });
+      } else if (error.name === 'ValidationError') {
+        res.status(NOT_FOUND).send({ message: 'Пользователь с таким идентификатором не найден' });
+      } else {
+        res.status(INTERNAL_SERVER_ERROR).send({ message: 'Произошла ошибка на сервере' });
+      }
+    });
 };
 
 module.exports.createUser = (req, res) => {

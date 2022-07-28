@@ -16,11 +16,15 @@ module.exports.getCards = (req, res) => {
 module.exports.deleteCardById = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
     .then((card) => {
-      if (!card) {
-        res.status(NOT_FOUND).send({ message: 'Карточка с таким идентификатором не найдена' });
-      } else { res.send({ card }); }
+      res.send({ card });
     })
-    .catch(() => res.status(INTERNAL_SERVER_ERROR).send({ message: 'Произошла ошибка на сервере' }));
+    .catch((error) => {
+      if (error.name === 'CastError') {
+        res.status(BAD_REQUEST).send({ message: 'Карточка с таким идентификатором не найдена' });
+      } else {
+        res.status(INTERNAL_SERVER_ERROR).send({ message: 'Произошла ошибка на сервере' });
+      }
+    });
 };
 
 module.exports.createCard = (req, res) => {
@@ -43,13 +47,13 @@ module.exports.addLike = (req, res) => {
     { new: true },
   )
     .then((card) => {
-      if (!card) {
-        res.status(NOT_FOUND).send({ message: 'Карточка с таким идентификатором не найдена' });
-      } else { res.send({ likes: card.likes }); }
+      res.send({ likes: card.likes });
     })
     .catch((error) => {
       if (error.name === 'ValidationError') {
         res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
+      } else if (error.name === 'CastError') {
+        res.status(NOT_FOUND).send({ message: 'Карточка с таким идентификатором не найдена' });
       } else {
         res.status(INTERNAL_SERVER_ERROR).send({ message: 'Произошла ошибка на сервере' });
       }
@@ -63,13 +67,13 @@ module.exports.deleteLike = (req, res) => {
     { new: true },
   )
     .then((card) => {
-      if (!card) {
-        res.status(NOT_FOUND).send({ message: 'Карточка с таким идентификатором не найдена' });
-      } else { res.send({ likes: card.likes }); }
+      res.send({ likes: card.likes });
     })
     .catch((error) => {
       if (error.name === 'ValidationError') {
         res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
+      } else if (error.name === 'CastError') {
+        res.status(NOT_FOUND).send({ message: 'Карточка с таким идентификатором не найдена' });
       } else {
         res.status(INTERNAL_SERVER_ERROR).send({ message: 'Произошла ошибка на сервере' });
       }

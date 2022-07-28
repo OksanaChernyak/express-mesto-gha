@@ -4,6 +4,7 @@ const path = require('path');
 const bodyParser = require('body-parser');
 const userRoute = require('./routes/users');
 const cardRoute = require('./routes/cards');
+const { NOT_FOUND } = require('./utils/errors');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -25,5 +26,7 @@ app.use(express.static(PUBLIC_FOLDER));
 
 app.use('/', userRoute);
 app.use('/', cardRoute);
-
+app.use((req, res) => {
+  res.status(NOT_FOUND).send({ message: 'Страница  по этому адресу не найдена' });
+});
 app.listen(PORT);
