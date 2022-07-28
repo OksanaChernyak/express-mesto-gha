@@ -47,13 +47,15 @@ module.exports.addLike = (req, res) => {
     { new: true },
   )
     .then((card) => {
-      res.send({ likes: card.likes });
+      if (!card) {
+        res.status(NOT_FOUND).send({ message: 'Карточка с таким идентификатором не найдена' });
+      } else {
+        res.send({ likes: card.likes });
+      }
     })
     .catch((error) => {
       if (error.name === 'CastError') {
         res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
-      } else if (error.name === 'ValidationError') {
-        res.status(NOT_FOUND).send({ message: 'Карточка с таким идентификатором не найдена' });
       } else {
         res.status(INTERNAL_SERVER_ERROR).send({ message: 'Произошла ошибка на сервере' });
       }
@@ -67,13 +69,15 @@ module.exports.deleteLike = (req, res) => {
     { new: true },
   )
     .then((card) => {
-      res.send({ likes: card.likes });
+      if (!card) {
+        res.status(NOT_FOUND).send({ message: 'Карточка с таким идентификатором не найдена' });
+      } else {
+        res.send({ likes: card.likes });
+      }
     })
     .catch((error) => {
       if (error.name === 'CastError') {
         res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
-      } else if (error.name === 'ValidationError') {
-        res.status(NOT_FOUND).send({ message: 'Карточка с таким идентификатором не найдена' });
       } else {
         res.status(INTERNAL_SERVER_ERROR).send({ message: 'Произошла ошибка на сервере' });
       }
