@@ -44,7 +44,7 @@ module.exports.updateProfile = (req, res) => {
   User.findByIdAndUpdate(req.user._id, { name, about })
     .then((user) => {
       if (!user) {
-        res.status(NOT_FOUND).send({ message: 'Пользователь с таким идентификатором не найден' });
+        res.status(BAD_REQUEST).send({ message: 'Пользователь с таким идентификатором не найден' });
       } else { res.send({ data: user }); }
     })
     .catch((error) => {
