@@ -1,6 +1,5 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const path = require('path');
 const bodyParser = require('body-parser');
 const userRoute = require('./routes/users');
 const cardRoute = require('./routes/cards');
@@ -8,7 +7,6 @@ const { NOT_FOUND } = require('./utils/errors');
 
 const { PORT = 3000 } = process.env;
 const app = express();
-const PUBLIC_FOLDER = path.join(__dirname, 'public');
 mongoose.connect('mongodb://localhost:27017/mestodb', {
   useNewUrlParser: true,
 });
@@ -22,7 +20,6 @@ app.use((req, res, next) => {
   };
   next();
 });
-app.use(express.static(PUBLIC_FOLDER));
 
 app.use('/', userRoute);
 app.use('/', cardRoute);
