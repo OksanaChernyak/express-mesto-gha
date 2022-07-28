@@ -16,7 +16,11 @@ module.exports.getCards = (req, res) => {
 module.exports.deleteCardById = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
     .then((card) => {
-      res.send({ card });
+      if (!card) {
+        res.status(NOT_FOUND).send({ message: 'Карточка с таким идентификатором не найдена' });
+      } else {
+        res.send({ card });
+      }
     })
     .catch((error) => {
       if (error.name === 'CastError') {
