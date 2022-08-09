@@ -28,7 +28,7 @@ app.post('/signup', createUser);
 app.use(auth);
 app.use('/', userRoute);
 app.use('/', cardRoute);
-app.use((req, res) => {
+app.use(() => {
   throw new NotFoundError('Страница  по этому адресу не найдена');
 });
 

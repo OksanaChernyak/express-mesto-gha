@@ -5,6 +5,7 @@ const NotFoundError = require('../utils/NotFoundError');
 const BadRequestError = require('../utils/BadRequestError');
 const InternalServerError = require('../utils/InternalServerError');
 const ConflictingRequestError = require('../utils/ConflictingRequestError');
+const UnauthorizedError = require('../utils/UnauthorizedError');
 
 module.exports.login = (req, res) => {
   const { email, password } = req.body;
@@ -20,7 +21,13 @@ module.exports.login = (req, res) => {
 
 module.exports.getUsers = (req, res) => {
   User.find({})
-    .then((users) => res.send({ data: users }))
+    .then((users) => {
+      if (!users) {
+        throw new UnauthorizedError('Вы не авторизованы');
+      } else {
+        res.send({ data: users });
+      }
+    })
     .catch(() => {
       throw new InternalServerError('Произошла ошибка на сервере');
     });
@@ -63,7 +70,7 @@ module.exports.createUser = (req, res) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
-  User.findOne({ email }).then((userMatches) => {
+  User.findOne({ email }, { new: true, runValidators: true }).then((userMatches) => {
     if (userMatches) {
       throw new ConflictingRequestError('Такой пользователь уже есть');
     } else {
