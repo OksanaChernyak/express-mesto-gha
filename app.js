@@ -2,7 +2,6 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { errors } = require('celebrate');
-const { celebrate, Joi } = require('celebrate');
 const userRoute = require('./routes/users');
 const cardRoute = require('./routes/cards');
 const { login, createUser } = require('./controllers/users');
@@ -18,18 +17,8 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.post('/signin', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required(),
-    password: Joi.string().required(),
-  }).unknown(true),
-}), login);
-app.post('/signup', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required(),
-    password: Joi.string().required(),
-  }).unknown(true),
-}), createUser);
+app.post('/signin', login);
+app.post('/signup', createUser);
 app.use(auth);
 app.use('/', userRoute);
 app.use('/', cardRoute);
