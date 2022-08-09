@@ -3,27 +3,33 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const userRoute = require('./routes/users');
 const cardRoute = require('./routes/cards');
-const { NOT_FOUND } = require('./utils/errors');
+const { login, createUser } = require('./controllers/users');
+const auth = require('./middlewares/auth');
+
+const NotFoundError = require('./utils/NotFoundError');
 
 const { PORT = 3000 } = process.env;
 const app = express();
 mongoose.connect('mongodb://localhost:27017/mestodb', {
   useNewUrlParser: true,
 });
-// для приема веб-страниц внутри POST-запроса
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '62e01e6bed4fdb5f90a67e9c',
-  };
-  next();
-});
-
+// app.use((req, res, next) => {
+// req.user = {
+//  _id: '62e01e6bed4fdb5f90a67e9c',
+//  };
+// next();
+// });
+app.post('/signin', login);
+app.post('/signup', createUser);
+app.use(auth);
 app.use('/', userRoute);
 app.use('/', cardRoute);
 app.use((req, res) => {
-  res.status(NOT_FOUND).send({ message: 'Страница  по этому адресу не найдена' });
+  throw new NotFoundError('Страница  по этому адресу не найдена');
 });
+
 app.listen(PORT);

@@ -15,6 +15,11 @@ const cardSchema = new mongoose.Schema({
   link: {
     type: String,
     required: true,
+    validate: {
+      validator(v) {
+        return /^https?:\/\/(www.)?([\da-z-]+\.)+\/?\S*/gim.test(v);
+      },
+    },
   },
   likes: [{
     type: mongoose.Schema.Types.ObjectId,
