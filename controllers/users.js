@@ -7,19 +7,17 @@ const InternalServerError = require('../utils/InternalServerError');
 const ConflictingRequestError = require('../utils/ConflictingRequestError');
 const UnauthorizedError = require('../utils/UnauthorizedError');
 
-module.exports.login = (req, res) => {
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
   User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, 'oksana-have-secrets', { expiresIn: '7d' });
       res.send({ token });
     })
-    .catch(() => {
-      throw new BadRequestError('Произошла ошибка аутентификации');
-    });
+    .catch(next);
 };
 
-module.exports.getUsers = (req, res) => {
+module.exports.getUsers = (req, res, next) => {
   User.find({})
     .then((users) => {
       if (!users) {
@@ -28,12 +26,10 @@ module.exports.getUsers = (req, res) => {
         res.send({ data: users });
       }
     })
-    .catch(() => {
-      throw new InternalServerError('Произошла ошибка на сервере');
-    });
+    .catch(next);
 };
 
-module.exports.getMe = (req, res) => {
+module.exports.getMe = (req, res, next) => {
   User.findById(req.user.id)
     .then((user) => {
       if (!user) {
@@ -42,9 +38,7 @@ module.exports.getMe = (req, res) => {
         res.send({ user });
       }
     })
-    .catch(() => {
-      throw new InternalServerError('Произошла ошибка на сервере');
-    });
+    .catch(next);
 };
 
 module.exports.getUserById = (req, res) => {
@@ -57,7 +51,6 @@ module.exports.getUserById = (req, res) => {
       }
     })
     .catch((error) => {
-      // console.log(error.name);
       if (error.name === 'CastError') {
         throw new BadRequestError('Некорректный id');
       } else {
