@@ -32,9 +32,8 @@ app.post('/signup', celebrate({
     about: Joi.string().min(2).max(30),
   }),
 }), createUser);
-app.use(auth);
-app.use('/', userRoute);
-app.use('/', cardRoute);
+app.use('/', auth, userRoute);
+app.use('/', auth, cardRoute);
 app.use(() => {
   throw new NotFoundError('Страница  по этому адресу не найдена');
 });
