@@ -23,7 +23,7 @@ module.exports.getUsers = (req, res, next) => {
       if (!users) {
         throw new UnauthorizedError('Вы не авторизованы');
       } else {
-        res.send({ data: users });
+        res.send({ users });
       }
     })
     .catch(next);
@@ -63,7 +63,7 @@ module.exports.createUser = (req, res) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
-  User.findOne({ email }, { new: true, runValidators: true }).then((userMatches) => {
+  User.findOne({ email }).then((userMatches) => {
     if (userMatches) {
       throw new ConflictingRequestError('Такой пользователь уже есть');
     } else {
