@@ -34,7 +34,7 @@ app.post('/signup', celebrate({
 }), createUser);
 app.use('/', auth, userRoute);
 app.use('/', auth, cardRoute);
-app.use(() => {
+app.use('*', (req, res, next) => {
   throw new NotFoundError('Страница  по этому адресу не найдена');
 });
 app.use(errors());

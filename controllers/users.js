@@ -35,7 +35,7 @@ module.exports.getMe = (req, res, next) => {
       if (!user) {
         throw new NotFoundError('Пользователь с таким идентификатором не найден');
       } else {
-        res.send({ user });
+        res.send({ data: user });
       }
     })
     .catch(next);
