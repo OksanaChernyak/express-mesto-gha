@@ -63,15 +63,18 @@ module.exports.createUser = (req, res) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
-  User.findOne({ email }).then((userMatches) => {
-    if (userMatches) {
-      throw new ConflictingRequestError('Такой пользователь уже есть');
-    } else {
-      bcrypt.hash(password, 10)
-        .then((hash) => User.create({
-          name, about, avatar, email, password: hash,
-        }));
-    }
+  User.findOne({ email }).then(() => {
+    bcrypt.hash(password, 10)
+      .then((hash) => User.create({
+        name, about, avatar, email, password: hash,
+      }))
+      .catch((error) => {
+        if (error.code === 11000) {
+          throw new ConflictingRequestError('Некорректные данные');
+        } else {
+          throw new InternalServerError('Произошла ошибка на сервере');
+        }
+      });
   })
     .then((user) => res.send({ user }))
     .catch((error) => {
