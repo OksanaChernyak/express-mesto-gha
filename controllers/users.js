@@ -63,18 +63,11 @@ module.exports.createUser = (req, res) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
-  User.findOne({ email }).then((user) => {
-    if (user) {
-      throw new ConflictingRequestError('Некорректные данные, такой пользователь уже зарегистрирован');
-    }
-    bcrypt.hash(password, 10)
-      .then((hash) => User.create({
-        name, about, avatar, email, password: hash,
-      }))
-      .catch(() => {
-        throw new InternalServerError('Произошла ошибка на сервере');
-      });
-  })
+  bcrypt.hash(password, 10)
+    .then((hash) => User.create({
+      name, about, avatar, email, password: hash,
+    }))
+    .then(() => User.findOne({ email }))
     .then((user) => res.send({ user }))
     .catch((error) => {
       if (error.name === 'ValidationError') {
