@@ -85,7 +85,9 @@ module.exports.updateProfile = (req, res) => {
     .then((user) => {
       if (!user) {
         throw new NotFoundError('Пользователь с таким идентификатором не найден');
-      } else { res.send({ user }); }
+      } else {
+        res.send({ user });
+      }
     })
     .catch((error) => {
       if (error.name === 'ValidationError') {
@@ -102,7 +104,9 @@ module.exports.updateAvatar = (req, res) => {
     .then((user) => {
       if (!user) {
         throw new NotFoundError('Пользователь с таким идентификатором не найден');
-      } else { res.send({ user }); }
+      } else {
+        res.send({ user });
+      }
     })
     .catch((error) => {
       if (error.name === 'ValidationError' || error.name === 'CastError') {
