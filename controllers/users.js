@@ -4,7 +4,6 @@ const User = require('../models/user');
 const NotFoundError = require('../utils/NotFoundError');
 const BadRequestError = require('../utils/BadRequestError');
 const InternalServerError = require('../utils/InternalServerError');
-const ConflictingRequestError = require('../utils/ConflictingRequestError');
 const UnauthorizedError = require('../utils/UnauthorizedError');
 
 module.exports.login = (req, res, next) => {
@@ -12,7 +11,9 @@ module.exports.login = (req, res, next) => {
   User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, 'oksana-have-secrets', { expiresIn: '7d' });
-      res.send({ token });
+      res.send({
+        email: user.email, _id: user._id, name: user.name, about: user.about, avatar: user.avatar,
+      });
     })
     .catch(next);
 };
@@ -64,9 +65,11 @@ module.exports.createUser = (req, res) => {
     name, about, avatar, email, password,
   } = req.body;
   bcrypt.hash(password, 10)
-    .then((hash) => User.create({
-      name, about, avatar, email, password: hash,
-    }))
+    .then((hash) => {
+      User.create({
+        name, about, avatar, email, password: hash,
+      });
+    })
     .then(() => User.findOne({ email }))
     .then((user) => res.send({ user }))
     .catch((error) => {
