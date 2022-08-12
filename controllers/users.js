@@ -5,6 +5,7 @@ const NotFoundError = require('../utils/NotFoundError');
 const BadRequestError = require('../utils/BadRequestError');
 const InternalServerError = require('../utils/InternalServerError');
 const UnauthorizedError = require('../utils/UnauthorizedError');
+const ConflictingRequestError = require('../utils/ConflictingRequestError');
 
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
