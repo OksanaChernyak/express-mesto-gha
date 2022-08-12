@@ -63,17 +63,25 @@ module.exports.createUser = (req, res) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
-  bcrypt.hash(password, 10)
-    .then((hash) => {
-      User.create({
-        name, about, avatar, email, password: hash,
-      });
-    })
-    .then(() => User.findOne({ email }))
-    .then((user) => {
-      const userObject = user.toObject();
-      delete userObject.password;
-      res.send(userObject);
+  User.findOne({ email })
+    .then((userFound) => {
+      if (userFound) {
+        throw new ConflictingRequestError('Такой пользователь уже зарегистрирован');
+      } else {
+        bcrypt.hash(password, 10)
+          .then((hash) => User.create({
+            name, about, avatar, email, password: hash,
+          }))
+          .then((user) => res.send({
+            data: {
+              name: user.name,
+              about: user.about,
+              avatar: user.avatar,
+              email: user.email,
+              _id: user._id,
+            },
+          }));
+      }
     })
     .catch((error) => {
       if (error.name === 'ValidationError') {
