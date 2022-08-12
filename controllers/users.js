@@ -11,6 +11,9 @@ module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
   User.findUserByCredentials(email, password)
     .then((user) => {
+      if (!email || !password) {
+        throw new UnauthorizedError('Неверный пароль или почта');
+      }
       const token = jwt.sign({ _id: user._id }, 'oksana-have-secrets', { expiresIn: '7d' });
       res.send({ token });
     })

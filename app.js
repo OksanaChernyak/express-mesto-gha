@@ -23,6 +23,7 @@ app.post('/signin', celebrate({
     password: Joi.string().required(),
   }),
 }), login);
+
 app.post('/signup', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
@@ -34,7 +35,7 @@ app.post('/signup', celebrate({
 }), createUser);
 app.use('/', auth, userRoute);
 app.use('/', auth, cardRoute);
-app.use('*', () => {
+app.use('/*', () => {
   throw new NotFoundError('Страница  по этому адресу не найдена');
 });
 app.use(errors());
