@@ -31,12 +31,13 @@ app.post('/signup', celebrate({
     name: Joi.string().min(2).max(30),
     avatar: Joi.string().regex(/^https?:\/\/(www.)?([\da-z-]+\.)+\/?\S*/im),
     about: Joi.string().min(2).max(30),
+    _id: Joi.string(),
   }),
 }), createUser);
 app.use('/', auth, userRoute);
 app.use('/', auth, cardRoute);
-app.use('/*', () => {
-  throw new NotFoundError('Страница  по этому адресу не найдена');
+app.use('/*', (next) => {
+  next(new NotFoundError('Страница  по этому адресу не найдена'));
 });
 app.use(errors());
 app.use((err, req, res, next) => {

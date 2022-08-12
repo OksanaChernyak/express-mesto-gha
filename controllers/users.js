@@ -12,7 +12,7 @@ module.exports.login = (req, res, next) => {
   User.findUserByCredentials(email, password)
     .then((user) => {
       if (!email || !password) {
-        throw new UnauthorizedError('Неверный пароль или почта');
+        next(new UnauthorizedError('Неверный пароль или почта'));
       }
       const token = jwt.sign({ _id: user._id }, 'oksana-have-secrets', { expiresIn: '7d' });
       res.send({ token });
@@ -24,7 +24,7 @@ module.exports.getUsers = (req, res, next) => {
   User.find({})
     .then((users) => {
       if (!users) {
-        throw new UnauthorizedError('Вы не авторизованы');
+        next(new UnauthorizedError('Вы не авторизованы'));
       } else {
         res.send({ data: users });
       }
@@ -36,7 +36,7 @@ module.exports.getMe = (req, res, next) => {
   User.findById(req.user.id)
     .then((user) => {
       if (!user) {
-        throw new NotFoundError('Пользователь с таким идентификатором не найден');
+        next(new NotFoundError('Пользователь с таким идентификатором не найден'));
       } else {
         res.send({ data: user });
       }
@@ -44,32 +44,32 @@ module.exports.getMe = (req, res, next) => {
     .catch(next);
 };
 
-module.exports.getUserById = (req, res) => {
+module.exports.getUserById = (req, res, next) => {
   User.findById(req.params.userId)
     .then((user) => {
       if (!user) {
-        throw new NotFoundError('Пользователь с таким идентификатором не найден');
+        next(new NotFoundError('Пользователь с таким идентификатором не найден'));
       } else {
         res.send({ user });
       }
     })
     .catch((error) => {
       if (error.name === 'CastError') {
-        throw new BadRequestError('Некорректный id');
+        next(new BadRequestError('Некорректный id'));
       } else {
-        throw new InternalServerError('Произошла ошибка на сервере');
+        next(new InternalServerError('Произошла ошибка на сервере'));
       }
     });
 };
 
-module.exports.createUser = (req, res) => {
+module.exports.createUser = (req, res, next) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
   User.findOne({ email })
     .then((userFound) => {
       if (userFound) {
-        throw new ConflictingRequestError('Такой пользователь уже зарегистрирован');
+        next(new ConflictingRequestError('Такой пользователь уже зарегистрирован'));
       } else {
         bcrypt.hash(password, 10)
           .then((hash) => User.create({
@@ -88,48 +88,48 @@ module.exports.createUser = (req, res) => {
     })
     .catch((error) => {
       if (error.name === 'ValidationError') {
-        throw new BadRequestError('Переданы некорректные данные при создании пользователя');
+        next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
       } else {
-        throw new InternalServerError('Произошла ошибка на сервере');
+        next(new InternalServerError('Произошла ошибка на сервере'));
       }
     });
 };
 
-module.exports.updateProfile = (req, res) => {
+module.exports.updateProfile = (req, res, next) => {
   const { name, about } = req.body;
   // Объект опций для того, чтобы валидировать поля, и чтобы обновить запись в обработчике then
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
     .then((user) => {
       if (!user) {
-        throw new NotFoundError('Пользователь с таким идентификатором не найден');
+        next(new NotFoundError('Пользователь с таким идентификатором не найден'));
       } else {
         res.send({ user });
       }
     })
     .catch((error) => {
       if (error.name === 'ValidationError') {
-        throw new BadRequestError('Переданы некорректные данные при редактировании профиля пользователя');
+        next(new BadRequestError('Переданы некорректные данные при редактировании профиля пользователя'));
       } else {
-        throw new InternalServerError('Произошла ошибка на сервере');
+        next(new InternalServerError('Произошла ошибка на сервере'));
       }
     });
 };
 
-module.exports.updateAvatar = (req, res) => {
+module.exports.updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
     .then((user) => {
       if (!user) {
-        throw new NotFoundError('Пользователь с таким идентификатором не найден');
+        next(new NotFoundError('Пользователь с таким идентификатором не найден'));
       } else {
         res.send({ user });
       }
     })
     .catch((error) => {
       if (error.name === 'ValidationError' || error.name === 'CastError') {
-        throw new BadRequestError('Переданы некорректные данные при редактировании профиля аватара');
+        next(new BadRequestError('Переданы некорректные данные при редактировании профиля аватара'));
       } else {
-        throw new InternalServerError('Произошла ошибка на сервере');
+        next(new InternalServerError('Произошла ошибка на сервере'));
       }
     });
 };
