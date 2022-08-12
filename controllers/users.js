@@ -70,7 +70,11 @@ module.exports.createUser = (req, res) => {
       });
     })
     .then(() => User.findOne({ email }))
-    .then((user) => res.send({ user }))
+    .then((user) => {
+      const userObject = user.toObject();
+      delete userObject.password;
+      res.send(userObject);
+    })
     .catch((error) => {
       if (error.name === 'ValidationError') {
         throw new BadRequestError('Переданы некорректные данные при создании пользователя');
