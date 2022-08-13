@@ -40,7 +40,7 @@ app.use('/*', () => {
   throw new NotFoundError('Страница  по этому адресу не найдена');
 });
 app.use(errors());
-app.use((err, req, res, next) => {
+app.use((err, req, res) => {
   const { statusCode = 500, message } = err;
   res.status(err.statusCode).send({
     message: statusCode === 500
