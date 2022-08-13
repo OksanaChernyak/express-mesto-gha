@@ -33,7 +33,7 @@ module.exports.getUsers = (req, res, next) => {
 };
 
 module.exports.getMe = (req, res, next) => {
-  User.findById(req.user.id)
+  User.findById(req.user._id)
     .then((user) => {
       if (!user) {
         next(new NotFoundError('Пользователь с таким идентификатором не найден'));
@@ -50,7 +50,7 @@ module.exports.getUserById = (req, res, next) => {
       if (!user) {
         next(new NotFoundError('Пользователь с таким идентификатором не найден'));
       } else {
-        res.send({ user });
+        res.send({ data: user });
       }
     })
     .catch((error) => {
