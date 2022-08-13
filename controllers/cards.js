@@ -1,14 +1,13 @@
 const Card = require('../models/card');
 const NotFoundError = require('../utils/NotFoundError');
 const BadRequestError = require('../utils/BadRequestError');
-const InternalServerError = require('../utils/InternalServerError');
 const ForbiddenError = require('../utils/ForbiddenError');
 
 module.exports.getCards = (req, res, next) => {
   Card.find({})
     .then((cards) => res.send({ data: cards }))
     .catch(() => {
-      next(new InternalServerError('Произошла ошибка на сервере'));
+      next();
     });
 };
 
@@ -21,6 +20,9 @@ module.exports.deleteCardById = (req, res, next) => {
         Card.findByIdAndRemove(req.params.cardId)
           .then((deleted) => {
             res.status(200).send({ data: deleted });
+          })
+          .catch(() => {
+            next();
           });
       } else {
         next(new ForbiddenError('Вы пытаетесь удалить чужую карточку'));
@@ -33,7 +35,7 @@ module.exports.deleteCardById = (req, res, next) => {
       if (error.name === 'CastError') {
         next(new BadRequestError('Карточка с таким идентификатором не найдена'));
       } else {
-        next(new InternalServerError('Произошла ошибка на сервере'));
+        next();
       }
     });
 };
@@ -46,7 +48,7 @@ module.exports.createCard = (req, res, next) => {
       if (error.name === 'ValidationError') {
         next(new BadRequestError('Переданы некорректные данные при создании карточки'));
       } else {
-        next(new InternalServerError('Произошла ошибка на сервере'));
+        next();
       }
     });
 };
@@ -68,7 +70,7 @@ module.exports.addLike = (req, res, next) => {
       if (error.name === 'CastError') {
         next(new BadRequestError('Переданы некорректные данные'));
       } else {
-        next(new InternalServerError('Произошла ошибка на сервере'));
+        next();
       }
     });
 };
@@ -90,7 +92,7 @@ module.exports.deleteLike = (req, res, next) => {
       if (error.name === 'CastError') {
         next(new BadRequestError('Переданы некорректные данные'));
       } else {
-        next(new InternalServerError('Произошла ошибка на сервере'));
+        next();
       }
     });
 };

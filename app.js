@@ -6,6 +6,7 @@ const userRoute = require('./routes/users');
 const cardRoute = require('./routes/cards');
 const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
+const errorsHandler = require('./middlewares/errors');
 const NotFoundError = require('./utils/NotFoundError');
 
 const { PORT = 3000 } = process.env;
@@ -31,23 +32,14 @@ app.post('/signup', celebrate({
     name: Joi.string().min(2).max(30),
     avatar: Joi.string().regex(/^https?:\/\/(www.)?([\da-z-]+\.)+\/?\S*/im),
     about: Joi.string().min(2).max(30),
-    _id: Joi.string().alphanum().length(24),
   }),
 }), createUser);
-app.use('/', auth, userRoute);
-app.use('/', auth, cardRoute);
+app.use('/users', auth, userRoute);
+app.use('/cards', auth, cardRoute);
 app.use('/*', () => {
   throw new NotFoundError('Страница  по этому адресу не найдена');
 });
 app.use(errors());
-app.use((err, req, res, next) => {
-  const { statusCode = 500, message } = err;
-  res.status(err.statusCode).send({
-    message: statusCode === 500
-      ? 'На сервере произошла ошибка'
-      : message,
-  });
-  next();
-});
+app.use(errorsHandler);
 
 app.listen(PORT);

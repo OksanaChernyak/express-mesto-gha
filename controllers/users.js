@@ -3,7 +3,6 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const NotFoundError = require('../utils/NotFoundError');
 const BadRequestError = require('../utils/BadRequestError');
-const InternalServerError = require('../utils/InternalServerError');
 const UnauthorizedError = require('../utils/UnauthorizedError');
 const ConflictingRequestError = require('../utils/ConflictingRequestError');
 
@@ -11,9 +10,6 @@ module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
   User.findUserByCredentials(email, password)
     .then((user) => {
-      if (!email || !password) {
-        next(new UnauthorizedError('Неверный пароль или почта'));
-      }
       const token = jwt.sign({ _id: user._id }, 'oksana-have-secrets', { expiresIn: '7d' });
       res.send({ token });
     })
@@ -57,7 +53,7 @@ module.exports.getUserById = (req, res, next) => {
       if (error.name === 'CastError') {
         next(new BadRequestError('Некорректный id'));
       } else {
-        next(new InternalServerError('Произошла ошибка на сервере'));
+        next();
       }
     });
 };
@@ -66,31 +62,28 @@ module.exports.createUser = (req, res, next) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
-  User.findOne({ email })
-    .then((userFound) => {
-      if (userFound) {
-        next(new ConflictingRequestError('Такой пользователь уже зарегистрирован'));
-      } else {
-        bcrypt.hash(password, 10)
-          .then((hash) => User.create({
-            name, about, avatar, email, password: hash,
-          }))
-          .then((user) => res.send({
-            data: {
-              name: user.name,
-              about: user.about,
-              avatar: user.avatar,
-              email: user.email,
-              _id: user._id,
-            },
-          }));
-      }
-    })
+  bcrypt.hash(password, 10)
+    .then((hash) => User.create({
+      name, about, avatar, email, password: hash,
+    }))
+    .then((user) => res.send({
+      data: {
+        name: user.name,
+        about: user.about,
+        avatar: user.avatar,
+        email: user.email,
+        _id: user._id,
+      },
+    }))
     .catch((error) => {
       if (error.name === 'ValidationError') {
         next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
+      } else if (
+        error.code === 11000
+      ) {
+        next(new ConflictingRequestError('Такой пользователь уже зарегистрирован'));
       } else {
-        next(new InternalServerError('Произошла ошибка на сервере'));
+        next();
       }
     });
 };
@@ -110,7 +103,7 @@ module.exports.updateProfile = (req, res, next) => {
       if (error.name === 'ValidationError') {
         next(new BadRequestError('Переданы некорректные данные при редактировании профиля пользователя'));
       } else {
-        next(new InternalServerError('Произошла ошибка на сервере'));
+        next();
       }
     });
 };
@@ -129,7 +122,7 @@ module.exports.updateAvatar = (req, res, next) => {
       if (error.name === 'ValidationError' || error.name === 'CastError') {
         next(new BadRequestError('Переданы некорректные данные при редактировании профиля аватара'));
       } else {
-        next(new InternalServerError('Произошла ошибка на сервере'));
+        next();
       }
     });
 };
