@@ -13,18 +13,22 @@ module.exports.getCards = (req, res, next) => {
 };
 
 module.exports.deleteCardById = (req, res, next) => {
-  Card.findByIdAndRemove(req.params.cardId)
-    .then((card) => {
-      const ownerId = card.owner.id;
+  Card.findById(req.params.cardId).then((card) => {
+    if (card) {
+      const ownerId = card.owner.toString();
       const userId = req.user._id;
-      if (!card) {
-        next(new NotFoundError('Карточка с таким идентификатором не найдена'));
-      } else if (ownerId !== userId) {
-        next(new ForbiddenError('Вы пытаетесь удалить чужую карточку'));
+      if (ownerId === userId) {
+        Card.findByIdAndRemove(req.params.cardId)
+          .then((deleted) => {
+            res.status(200).send({ data: deleted });
+          });
       } else {
-        res.send({ card });
+        next(new ForbiddenError('Вы пытаетесь удалить чужую карточку'));
       }
-    })
+    } else {
+      next(new NotFoundError('Карточка с таким идентификатором не найдена'));
+    }
+  })
     .catch((error) => {
       if (error.name === 'CastError') {
         next(new BadRequestError('Карточка с таким идентификатором не найдена'));
